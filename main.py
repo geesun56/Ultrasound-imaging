@@ -1,9 +1,10 @@
 import processing
-from data import data_load 
+from data import signalData; 
 from matplotlib import pyplot as plt
+from processing import image_process
 
 # Data directory
-folder = './data/04142020'
+folder_path = './data/04142020'
 sample_file = '/data_r1c1.csv'
 prefix = '/data_r'
 suffix = '.csv'
@@ -11,30 +12,22 @@ suffix = '.csv'
 # Configuration
 data_rows = 40
 data_cols = 40
-average_size = 25 # 4MHz - 25 usec period: 25 entries = signal data during 25 usec
+frequency = 4 # 4MHz - 25 usec period: 25 entries = signal data during 25 usec
 
-sample_path = folder + sample_file 
-time, ch1, ch2 = data_load(sample_path)
-avg, process, envelop, pixel = processing.sample_convertion(ch1, average_size)
+mode = "batch"
 
-'''
-    dataset assumption
-    each time difference is approximately 1 usec
+signal_data = signalData(folder_path)
+processing.image_process(signal_data)
 
-'''
-
-
-'''
-batch_process
 image_data = []
 
 for i in range(1,data_rows+1):
     row = []
     for j in range(1, data_cols+1):
-        file_path = folder+prefix+str(i)+'c'+str(j)+suffix
+        file_path = signal_data.folder+signal_data.prefix+str(i)+'c'+str(j)+signal_data.suffix
         print(file_path)
-        time, ch1, ch2 = data_load(file_path)
-        row.append(processing.oneshot_convertion(ch1, average_size))
+        time, ch1, ch2 = signal_data.data_load(file_path)
+        row.append(processing.batch_process1(ch1, 25))
     image_data.append(row)
 
 
@@ -54,14 +47,19 @@ plt.title('Gray color map, no blending', y=1.02, fontsize=12)
 
 plt.show()
 
-'''
+
 
 '''print(time)
 print(ch1)
 print(ch2)'''
 
 
+'''
+# sample process
 
+sample_path = folder + sample_file 
+time, ch1, ch2 = data_load(sample_path)
+avg, process, envelop, pixel = processing.sample_convertion(ch1, average_size)
 
 fig = plt.figure()
 
@@ -84,6 +82,16 @@ plt.ylabel('amplitude')
 plt.plot(process)
 
 plt.show()
+
+'''
+
+'''
+    dataset assumption
+    each time difference is approximately 10 nsec
+
+'''
+
+
 
 
     
