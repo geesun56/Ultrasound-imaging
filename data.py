@@ -2,10 +2,14 @@ import csv
 
 points = 350
 
+# <signal scan data format>
+# sample_file = '/data_r1c1.csv'
+# prefix = '/data_r'
+# suffix = '.csv'
+
 class signalData:
     def __init__(self, folder):
         self.folder = folder
-        self.sample_file = '/data_r1c1.csv'
         self.prefix = '/data_r'
         self.suffix = '.csv'
 
