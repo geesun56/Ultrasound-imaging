@@ -96,26 +96,35 @@ def sample_convertion(data, avg_size, times=1):
     
     return average_data, process_data, envelop_data
 
-def image_process(signal_data, row, col, freq, mode, x=1, y=1):
+def image_process(signal_data, row, col, freq, mode, avg_level=1, x=1, y=1):
     process_data = []
     period = period_cal(freq)
     image_data = []
 
+    
     if mode == 'batch':
+        print('# Processing Info #')
+        print('- Mode: ', mode)
+        print('- Size: ', row, 'x', col)
+        print('- Average level: ', avg_level)
+        print('===============================')
+        print('Image Processing ( 0 /',row,')')
 
         for i in range(1,(row+1)):
-        
-            row = []
+            if i%2 == 0:
+              print('Image Processing (',i,'/',row,')',)
+            row_arr = []
             for j in range(1, (col+1)):
                 file_path = signal_data.folder+signal_data.prefix+str(i)+'c'+str(j)+signal_data.suffix
                 time, ch1, ch2 = signal_data.data_load(file_path)
-                result = batch_process_timefly(ch1, period, 8) 
-                print(file_path)
+                result = batch_process_timefly(ch1, period, avg_level) 
+                #print(file_path)
                 
-                row.append(int(result))
+                row_arr.append(int(result))
 
-            process_data.append(row)
-        
+            process_data.append(row_arr)
+
+        print('===============================')
         np.savetxt('process_data.txt',process_data)
 
         #used 2600 for previous experiment
