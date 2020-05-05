@@ -12,14 +12,15 @@ data_rows = 40
 data_cols = 40
 frequency = 4 # 4MHz - 25 usec period: 25 entries = signal data during 25 usec
 mode = "batch"
+data_type = "amplitude"
 x = 9
 y = 3
 signal_data = signalData(folder_path)
 
-ㅣ
+
 
 if mode == 'batch':
-    image_data = processing.image_process(signal_data, data_rows, data_cols, frequency, mode, x, y)
+    image_data = processing.image_process(signal_data, data_rows, data_cols, frequency, mode, data_type, x, y)
     plt.figure(figsize=(20,20))
 
     #use imshow to plot the array

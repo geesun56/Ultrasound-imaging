@@ -32,12 +32,6 @@ def argmax(data):
 
     return max_point
 
-def imaging(preprocess):
-    max_val = np.argmax(preprocess, axis=0)
-    print(max_val)
-
-    return max_val
-
 def convertion_to_pixel(data, base=0):
     data = np.array(data)
 
@@ -74,6 +68,20 @@ def batch_process_timefly(data, avg_size, times=1):
 
     return argmax_data
 
+def batch_process_amplitude(data, avg_size, times=1):
+    pre_data = data
+
+    for i in range(times):
+        average_data = averaging(pre_data, avg_size)
+        process_data = diff_filter(pre_data, average_data)
+
+        pre_data = process_data
+    
+    envelop_data = hilbert_trans(process_data)
+    amp_data = max(envelop_data)
+
+    return amp_data
+
 def batch_process2(data, avg_size):
     average_data = averaging(data, avg_size)
     process_data = diff_filter(data, average_data)
@@ -94,17 +102,17 @@ def sample_convertion(data, avg_size, times=1):
         
     envelop_data = hilbert_trans(process_data)
     
-    return average_data, process_data, envelop_data
+    return average_data, process_data, envelop_data, max(envelop_data)
 
-def image_process(signal_data, row, col, freq, mode, avg_level=1, x=1, y=1):
+def image_process(signal_data, row, col, freq, mode, data_type, avg_level=1, x=1, y=1):
     process_data = []
     period = period_cal(freq)
     image_data = []
 
-    
     if mode == 'batch':
         print('# Processing Info #')
         print('- Mode: ', mode)
+        print('- Data type: ', data_type)
         print('- Size: ', row, 'x', col)
         print('- Average level: ', avg_level)
         print('===============================')
@@ -117,14 +125,19 @@ def image_process(signal_data, row, col, freq, mode, avg_level=1, x=1, y=1):
             for j in range(1, (col+1)):
                 file_path = signal_data.folder+signal_data.prefix+str(i)+'c'+str(j)+signal_data.suffix
                 time, ch1, ch2 = signal_data.data_load(file_path)
-                result = batch_process_timefly(ch1, period, avg_level) 
+                if data_type == 'time':
+                    result = batch_process_timefly(ch1, period, avg_level) 
+                else:
+                    result = batch_process_amplitude(ch1, period, avg_level) 
                 #print(file_path)
                 
-                row_arr.append(int(result))
+                row_arr.append(result)
 
             process_data.append(row_arr)
-
+            
         print('===============================')
+        print('processData result:')
+        print(process_data)
         np.savetxt('process_data.txt',process_data)
 
         #used 2600 for previous experiment
@@ -138,8 +151,8 @@ def image_process(signal_data, row, col, freq, mode, avg_level=1, x=1, y=1):
         file_path = signal_data.folder+signal_data.prefix+str(x)+'c'+str(y)+signal_data.suffix
         time, ch1, ch2 = signal_data.data_load(file_path)
         print(file_path)
-        avg, pro, env = sample_convertion(ch1, period, 8)
+        avg, pro, env, maxVal = sample_convertion(ch1, period, 8)
         
-        return time, ch1, avg, pro, env
+        return time, ch1, avg, pro, env, print(maxVal)
     else:
         return print('ERROR: select mode for image processing') 
